@@ -7,12 +7,16 @@ echo "Step 2) install apache2 and gcc. Press RETURN to continue"
 read
 sudo apt install apache2 gcc
 sudo systemctl start apache2.service
-sudo chown $USER:$USER /var/www/html
-sudo chmod u+w /var/www/html
 
 echo "Step 3) load website"
 sudo rm -r /var/www/html/*
-sudo cp Website/* /var/www/html/
+cp Website/* /var/www/html/
+
+sudo chown $USER:$USER /var/www/html
+sudo chown $USER:$USER /var/www/html/*
+sudo chmod ugo+uwr /var/www
+sudo chmod ugo+uwr /var/www/html/*
+
 
 echo "Step 4) init directory"
 PATHTHERMOSTAT=$HOME/.thermostat
