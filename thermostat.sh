@@ -10,4 +10,4 @@
 # bits.
 #
 
-/bin/thermostat &
+/usr/bin/thermostat &
