@@ -1,0 +1,14 @@
+[Unit]
+Description=Script: /home/pi/.thermostat/thermostat.sh
+ConditionPathExists=/home/pi/.thermostat/thermostat.sh
+After=multi-user.target
+
+[Service]
+Type=forking
+ExecStart=/home/pi/.thermostat/thermostat.sh start
+TimeoutSec=0
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
