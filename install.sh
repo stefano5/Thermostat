@@ -17,7 +17,7 @@ sudo cp Website/* /var/www/html/
 echo "Step 4) init directory"
 PATHTHERMOSTAT=$HOME/.thermostat
 
-sudo rm -rf $PATHTHERMOSTAT >> /dev/zero
+sudo rm -rf $PATHTHERMOSTAT >> /dev/null
 mkdir $PATHTHERMOSTAT
 echo "$PATHTHERMOSTAT created"
 
@@ -26,13 +26,13 @@ cp Thermostat_JAVA/dist/*.jar $PATHTHERMOSTAT/Thermostat.jar
 echo "Step 5) initialize software"
 gcc -Wall -Werror thermostat.c -o $PATHTHERMOSTAT/thermostat
 
-sudo unlink /usr/bin/thermostat >> /dev/zero
+sudo unlink /usr/bin/thermostat >> /dev/null
 sudo ln -s $PATHTHERMOSTAT/thermostat /usr/bin/
 
 cp thermostat.sh $PATHTHERMOSTAT/
 
 echo "Step 6) create service with systemctl"
-sudo rm /etc/systemd/system/thermostat.service >> /dev/zero
+sudo rm /etc/systemd/system/thermostat.service >> /dev/null
 sudo cp thermostat.service /etc/systemd/system/
 sudo systemctl enable thermostat.service
 sudo systemctl start thermostat.service
