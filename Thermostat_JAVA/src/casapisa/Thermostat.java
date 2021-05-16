@@ -11,41 +11,44 @@ public class Thermostat {
     //path website with apache on raspbian. don't touch it
     public static String directory = "/var/www/html";
     
-    /*****************  pay attention please. 
+    /*****************  Pay attention please. 
      * only gmail mail are supported
      * you have to enable "access to less secure apps", see https://support.google.com/a/answer/6260879?hl=en
      * 
      * in userMail variable don't put "@gmail.com"
      * Therfore if your mail is "mariorossi@gmail.com" just put in userMail variable: "mariorossi" like below
      * userPassword variable is the password that you use to login in gmail
+     * 
+     * 
+     * This software use apache. See https://www.raspberrypi.org/documentation/remote-access/web-server/apache.md
+     * 
     */
     public static String userMail = "mariorossi";
-    public static String userPassword = "password";
+    public static String userPassword = "passwordaccaount";
     
-    ////##############à   ENTER HERE THE GPIOs VALUE
+    ////##############   ENTER HERE THE GPIOs VALUE
     public static int gpioRelay = 21;                           //gpio reley (mandatory), of course, you can choose another gpio
     public static int gpioLedStatusSystem = 26;                 //led status system (thermostat is on or off?)
     public static int gpioLedStatusHeating = 3;                 //led status heating (radiators are on or off?)
     ////////////////////////////////////////////////////////////////////////////
 
-    // software's variable, don't touch them
+    // Software's variable, don't touch them
     public static boolean systemIsOff;
     static LinkedList userUpdate;
     static Mail handleMail;
     static ManualProgram manualProgram;
     
-    //constants value
+    //Constants value
     private final static int SYSTEM_OFF = -1;
     private final static int INTERNAL_ERROR = -2;
     private final static int SYSTEM_ON_TABLE_MODE = 1;
     private final static int SYSTEM_ON_MANUAL_MODE = 2;
-    private final static int TASK_MAIL = 1;
-    private final static int PERIOD_MAIL_TASK = -1; //should be in [s], negative value means that we don't want choose it
-    
-
+    public final static int TASK_MAIL = 1;
+    public final static int PERIOD_MAIL_TASK = 1; //should be in [s], negative value means that we don't want choose it
+    // Mail service required a precise jvm version!!
 
     public static void main(String[] args) {
-        GPIO.debug = true;
+        GPIO.debug = true;  //                                                  see me!!
         if (args.length != 0 && args[0].contains("d")) {
             print("GPIO enabled by users");
             GPIO.debug = false;
@@ -57,19 +60,11 @@ public class Thermostat {
     
     public static void initialize() {
         if (GPIO.debug)
-            print("\n\n\t\tGPIO are disabled - debug mode\n\n");
+            print("\n\n\t\tGPIO are disabled - debug mode. To enable gpio use 'd' parameter: java -jar Thermostat.jar d \n\n");
         
-        //Solve all permission problem
+        //Solve all permission problem => deprecated
         //exe("sudo chmod u+w " + directory + "/*");
         //exe("sudo chown pi:pi " + directory + "/*");
-
-        //solve all directory dependences
-//        for (int i=0; i<7; i++) {
-//            if (!existFile(directory + "/" + i)) {
-//                for (int j=0; j<24; j++)
-//                    writeFile(true, directory + "/" + i + ".txt", "0\n");
-//            }
-//        }
         
         //Initialize gpio
         GPIO.initializeGpio(gpioRelay, "out");
@@ -81,7 +76,8 @@ public class Thermostat {
         userUpdate.add("Start: " + new Date_s().getData_gg_mm_aaaa());
         
         //Instace Mail service
-        new temporaryThread(TASK_MAIL, PERIOD_MAIL_TASK).start();
+        removeFile(directory + "/mail.txt");
+        //new temporaryThread(TASK_MAIL, PERIOD_MAIL_TASK).start();
         
         //instance class
         manualProgram = new ManualProgram();    //here management functions
@@ -102,13 +98,7 @@ public class Thermostat {
             Date_s date = new Date_s();
             getCommandFromShell();
             getAsyncCommunication();
-            writeCheckInternet();
-            
-            if (date.getMinuteValue()== 17 && mutex) {
-                //exe("sudo chown pi:pi " + directory + "/*");
-                //exe("sudo chmod 777 " + directory + "/*");
-                mutex = false;
-            } else mutex = true;
+            writeCheckInternet();            
            
             //print("##############################################");
             switch (controlStateSystem()) {
@@ -129,7 +119,7 @@ public class Thermostat {
                         GPIO.turnOffHeating();
                     }
                     break;
-                case SYSTEM_ON_TABLE_MODE:     //system is on, TABLE MODE 
+                case SYSTEM_ON_TABLE_MODE:     //system is on, TABLE MODE   => deprecated
                     if (changedState != SYSTEM_ON_TABLE_MODE) {
                         print("System on, table mode");
                         changedState = SYSTEM_ON_TABLE_MODE;
@@ -148,7 +138,8 @@ public class Thermostat {
                 default :
                     printErr("Error by controlStateSystem(). Internal error");
             }
-            sleep_m(100);
+
+            sleep_m(100);   //run 10 Hz
             if (!GPIO.debug)
                 writeFile("/home/pi/data_termostato", date.getData() + " " + date.getTimestamp()+ "\nState: " + controlStateSystem() + " (manual mode: 2)\n");
         }
@@ -165,12 +156,13 @@ public class Thermostat {
                     manualProgram.startProgram(parseInt(dump[2]));
                 }
             } catch (Exception e) {
-                print("Failed to store old program. Clear file program.txt");
+                printErr("Failed to store old program. Clear file program.txt");
                 writeFile(directory + "/program.txt", "");
             }
             print("All old program were stored");
         } else {
-            writeFile(directory + "/program.txt", "");
+            printErr(directory + "/program.txt missed");
+            //writeFile(directory + "/program.txt", "");
         }
     }
     
@@ -264,8 +256,8 @@ public class Thermostat {
     public static int controlStateSystem() {
         if (!existFile(directory + "/systemOn.txt")) {
             writeFile(directory + "/systemOn.txt", "0");
-            systemIsOff=true;
-            return INTERNAL_ERROR;
+            systemIsOff = true;
+            return SYSTEM_OFF;
         }
         try {
             int stateSystem = parseInt(readFile(directory + "/systemOn.txt")[0]);
@@ -334,7 +326,11 @@ public class Thermostat {
             }
         } else mutexOff = true;
     }
+
     
+    /**
+     * @deprecated   
+    */
     public static void managementSystemTable(Date_s date) {
         try {
             String state[] = readFile(directory + "/" + date.getDayOfWeek() + ".txt");
@@ -357,6 +353,9 @@ public class Thermostat {
         }
     }
     
+    /**
+     * @deprecated   
+    */
     public static void initFileSystemTable(int day) {
         String pathFile = directory + "/" + day;
         if (existFile(pathFile))

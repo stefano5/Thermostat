@@ -224,13 +224,31 @@ if ($system)
         echo "<form action='updateFileFromTable.php' method=GET>";
     else
         echo "<form action='updateFileFromCommand.php' method=GET>";
-?>
 
-  <p>È possibile inviare i seguenti comandi alla mail 'viabonannopisano20@gmail.com':</p>
+
+if ($system) {
+    if (getTypeSite())
+        echo "<form action='updateFileFromTable.php' method=GET>";
+    else
+        echo "<form action='updateFileFromCommand.php' method=GET>";
+}
+
+$f = fopen("/var/www/html/mail.txt", "r");
+
+if (!$f) {
+    $mail = "task mail disattivato";
+} else {
+    $mail = trim(fgets($f));
+    fclose($f);
+}
+
+echo "  <p>È possibile inviare i seguenti comandi alla mail '$mail' :</p>";
+
+?>
     <ul>
         <li>Oggetto mail: 'Accendi'      accende ora il riscaldamento. Non serve scrivere nulla come testo</li>
-        <li>Oggetto mail: 'Spegni'       spegni ora il riscaldamento. Non serve scrivere nulla come testo</li>
-        <li>Oggetto mail: 'Programma'<br>Testo mail: <br>ora inizio su prima riga <br> ora fine su seconda riga<br>Nota che la programmazione tramite mail è fatta solo sul giorno corrente</li>
+        <li>Oggetto mail: 'Spegni'       spegne ora il riscaldamento. Non serve scrivere nulla come testo</li>
+        <li>Oggetto mail: 'Programma'<br>Testo mail: <br>ora desiderata accensione riscaldamento su prima riga <br> ora desiderata spegnimento riscaldamento su seconda riga<br>Nota che la programmazione tramite mail è possibile solo sul giorno corrente</li>
     </ul>    
     <br>
 
@@ -369,7 +387,7 @@ if ($system) {
         echo "
 <div class='container'>
   <h2>Programmazioni esistenti</h2>
-  <p>Il riscaldamento viene acceso e spento automaticamente solo e solta negli orari di Start e di Fine. Negli orari intermedi nulla viene fatto.</p>
+  <p>Il riscaldamento viene acceso e spento automaticamente solo e soltanto negli orari di Start e di Fine. Negli orari intermedi nulla viene fatto.</p>
   <table class='table table-bordered'>
     <thead>
       <tr>

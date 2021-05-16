@@ -5,7 +5,7 @@ sudo apt upgrade
 
 echo "Step 2) install apache2 and gcc. Press RETURN to continue"
 read
-sudo apt install apache2 gcc
+sudo apt install apache2 gcc php libapache2-mod-php -y
 sudo systemctl start apache2.service
 
 echo "Step 3) load website"
@@ -14,8 +14,9 @@ cp Website/* /var/www/html/
 
 sudo chown $USER:$USER /var/www/html
 sudo chown $USER:$USER /var/www/html/*
-sudo chmod ugo+uwr /var/www
-sudo chmod ugo+uwr /var/www/html/*
+sudo chmod 777 /var/www
+sudo chmod 777 /var/www/html/*
+chmod 777 /var/www/html/
 
 
 echo "Step 4) init directory"
@@ -35,7 +36,8 @@ sudo ln -s $PATHTHERMOSTAT/thermostat /usr/bin/
 
 cp thermostat.sh $PATHTHERMOSTAT/
 
-echo "Step 6) create service with systemctl"
+echo "Step 6) create service with systemctl. Press RETURN to continue"
+read
 sudo rm /etc/systemd/system/thermostat.service >> /dev/null
 sudo cp thermostat.service /etc/systemd/system/
 sudo systemctl enable thermostat.service

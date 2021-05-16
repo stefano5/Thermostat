@@ -10,12 +10,11 @@
 #include    <sys/stat.h>
 #include    <unistd.h>
 
-#define COMMAND "cd /home/%s/.thermostat && java -jar Thermostat.jar"
-
-
-
-/////////////////////////   COPIED BY OTHER PERSONAL LIBRARY
+#define COMMAND "cd /home/%s/.thermostat && java -jar Thermostat.jar d"
 #define TRUE    1
+
+char user[32];
+
 
 void initArray_str(char *array, int dim) {
     for (int i=0; i<dim; i++) {
@@ -26,9 +25,8 @@ void initArray_str(char *array, int dim) {
 
 /* 
  * If 'disableRoot == TRUE' if you run with sudo this function return uid 1000 by default
- * you can use NO_ROOT_GUI  
+ * 
  * */
-char user[32];
 int getUserId(char *user, int disableRoot) {
     int uid = getuid();
     initArray_str(user, 32);

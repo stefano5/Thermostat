@@ -510,18 +510,18 @@ class temporaryThread extends Thread {
     @Override
     public void run() {
         switch(comando) {
-            case 1:
-                String userMail = "viabonannopisano20";
-                String userPassword = "controllotermostato";
+            case TASK_MAIL:
                 boolean mutex = true;
                 handleMail = new Mail(userMail, userPassword);
                 String adminAddress = handleMail.mailsAccepted.get(0).getMail();
-                if (!GPIO.debug)
-                    handleMail.SendMail(adminAddress, "Avvio termostato", "Il termostato in via bonanno pisano è stato avviato alle " + new Date_s().getTimestamp());
-                String newIp = "init", oldIp = getIp();
+                if (GPIO.debug == false)
+                    handleMail.SendMail(adminAddress, "Avvio termostato", "Il termostato è stato avviato alle " + new Date_s().getTimestamp());
+                
+                writeFile(directory + "/mail.txt", userMail + "@gmail.com");
+                
                 while (true) {
                     Date_s date = new Date_s();
-                    if (date.getHourValue()== 5 && date.getMinuteValue()== (27 + (int)(Math.random()*10))) {
+                    if (date.getHourValue()== 5 && date.getMinuteValue()== (27 + (int)(Math.random()*10))) { //required by google
                         if (mutex) {
                             writeFile(true, getDesktopPath() + "log_restart_mail.txt", "Si sta istanziando nuovamente la classe Mail(). Ora:" + date.getTimestamp() + 
                                     " - mi aspetto siano le 5 e 27+-10\n");
@@ -532,32 +532,14 @@ class temporaryThread extends Thread {
                         }
                         mutex = false;
                     } else mutex = true;
-                    
-                    newIp = getIp().trim();
-                    if (!newIp.equals(oldIp)) {
-                        if (newIp.length() > 2) {
-                            handleMail.SendMail("stefanomaugeri@hotmail.it",
-                                "Variazione indirizzo ip raspberry PISA", 
-                                "È stato rivelata una variazione dell'indirizzo ip. \n"
-                                    + "Il nuovo indirizzo risulta essere: " + newIp 
-                                    + "\nIl precedente indirizzo era: " + oldIp
-                            );
-                        }
-                        oldIp = newIp;
-                    }
-                    
+                                        
                     handleMail.managementMail();
                     
                     sleep_s(1);
                 }
              case 2:
-                 
+                // others task...
                 break;
-            case 3:
-                break;
-            case 4:
-                break;
-            case 5:
         }
     }    
 }
