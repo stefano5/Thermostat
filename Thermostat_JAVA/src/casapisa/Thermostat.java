@@ -28,8 +28,8 @@ public class Thermostat {
     
     ////##############   ENTER HERE THE GPIOs VALUE
     public static int gpioRelay = 21;                           //gpio reley (mandatory), of course, you can choose another gpio
-    public static int gpioLedStatusSystem = 26;                 //led status system (thermostat is on or off?)
-    public static int gpioLedStatusHeating = 3;                 //led status heating (radiators are on or off?)
+    public static int gpioLedStatusSystem = 23;                 //led status system (thermostat is on or off?)
+    public static int gpioLedStatusHeating = 24;                 //led status heating (radiators are on or off?)
     ////////////////////////////////////////////////////////////////////////////
 
     // Software's variable, don't touch them
