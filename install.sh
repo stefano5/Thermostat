@@ -36,6 +36,11 @@ sudo ln -s $PATHTHERMOSTAT/thermostat /usr/bin/
 
 cp thermostat.sh $PATHTHERMOSTAT/
 
+echo "0" > /var/www/html/systemOn.txt
+sudo chown $USER:$USER /var/www/html/systemOn.txt
+sudo chmod 777 /var/www/html/systemOn.txt
+
+
 echo "Step 6) create service with systemctl. Press RETURN to continue"
 read
 sudo rm /etc/systemd/system/thermostat.service >> /dev/null
